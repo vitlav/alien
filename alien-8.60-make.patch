@@ -1,0 +1,14 @@
+--- Makefile.PL.o	2005-12-28 01:19:31 +0300
++++ Makefile.PL	2005-12-28 01:19:46 +0300
+@@ -34,10 +34,7 @@
+ 	gzip -qf9 $(PREFIX)/share/alien/patches/*
+ 
+ alien:
+-	perl -pe ' \
+-		$$_="" if /use lib/; \
+-		$$_="our \$$Version=\"$(VER)\";\n" \
+-			if /VERSION_AUTOREPLACE/' alien.pl > alien
++	perl -pe ' $$_="" if /use lib/; $$_="our \$$Version=\"$(VER)\";\n" if /VERSION_AUTOREPLACE/' alien.pl > alien
+ }
+ }
+ 
