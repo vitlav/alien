@@ -1,5 +1,5 @@
 Name: alien
-Version: 8.60
+Version: 8.62
 Release: alt0.1
 
 Summary: Install Debian and Slackware Packages with RPM
@@ -13,9 +13,9 @@ Packager: Vitaly Lipatov <lav@altlinux.ru>
 BuildArch: noarch
 
 Source: http://kitenet.net/programs/alien/%{name}_%version.tar.bz2
-Patch: %name-%version-make.patch
+#Patch: %name-%version-make.patch
 
-# Automatically added by buildreq on Mon Oct 07 2002
+# Automatically added by buildreq on Mon Feb 13 2006
 BuildRequires: perl-devel
 
 %description
@@ -27,7 +27,7 @@ This is a tool only suitable for binary packages.
 
 %prep
 %setup -q -n %name
-%patch -p0
+#%patch -p0
 
 %build
 perl Makefile.PL \
@@ -54,6 +54,9 @@ rm -rf %buildroot%_datadir/%name
 %perl_vendor_man3dir/*
 
 %changelog
+* Mon Feb 13 2006 Vitaly Lipatov <lav@altlinux.ru> 8.62-alt0.1
+- new version
+
 * Tue Dec 27 2005 Vitaly Lipatov <lav@altlinux.ru> 8.60-alt0.1
 - new version
 - cleanup spec
