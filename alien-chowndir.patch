@@ -1,0 +1,13 @@
+--- Rpm.pm.o	2006-02-17 22:27:30 +0300
++++ Alien/Package/Rpm.pm	2006-02-17 22:41:48 +0300
+@@ -165,8 +165,8 @@
+ 	close RPMLIST;
+ 	foreach my $file (`cd $workdir; find ./`) {
+ 		chomp $file;
+-		if (! $seenfiles{$file} && -d $file && ! -l $file) {
+-			$this->do("chmod 755 $file");
++		if (! $seenfiles{$file} && -d "$workdir/$file" && ! -l "$workdir/$file") {
++			$this->do("chmod 755 $workdir/$file");
+ 		}
+ 	}
+ 

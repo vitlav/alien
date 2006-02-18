@@ -1,6 +1,6 @@
 Name: alien
-Version: 8.62
-Release: alt0.1
+Version: 8.63
+Release: alt1
 
 Summary: Install Debian and Slackware Packages with RPM
 
@@ -13,7 +13,7 @@ Packager: Vitaly Lipatov <lav@altlinux.ru>
 BuildArch: noarch
 
 Source: http://kitenet.net/programs/alien/%{name}_%version.tar.bz2
-#Patch: %name-%version-make.patch
+Patch: %name-chowndir.patch
 
 # Automatically added by buildreq on Mon Feb 13 2006
 BuildRequires: perl-devel
@@ -49,11 +49,19 @@ rm -rf %buildroot%_datadir/%name
 
 %files
 %_bindir/*
-%perl_vendor_privlib/*
+%perl_vendor_privlib/Alien/
 %perl_vendor_man1dir/*
 %perl_vendor_man3dir/*
 
 %changelog
+* Fri Feb 17 2006 Vitaly Lipatov <lav@altlinux.ru> 8.63-alt1
+- new version (8.63)
+- remove my patch (the same in mainstream now)
+
+* Fri Feb 17 2006 Vitaly Lipatov <lav@altlinux.ru> 8.62-alt1
+- remove empty dir from package
+- fix bug with dir permission unpacked with cpio -d (see bug #9106 also)
+
 * Mon Feb 13 2006 Vitaly Lipatov <lav@altlinux.ru> 8.62-alt0.1
 - new version
 
