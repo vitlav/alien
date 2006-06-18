@@ -1,6 +1,6 @@
 Name: alien
-Version: 8.63
-Release: alt1
+Version: 8.64
+Release: alt0.1
 
 Summary: Install Debian and Slackware Packages with RPM
 
@@ -12,8 +12,9 @@ Packager: Vitaly Lipatov <lav@altlinux.ru>
 
 BuildArch: noarch
 
-Source: http://kitenet.net/programs/alien/%{name}_%version.tar.bz2
-Patch: %name-chowndir.patch
+#Source: http://kitenet.net/programs/alien/%{name}_%version.tar.bz2
+Source: http://ftp.debian.org/debian/pool/main/a/alien/%{name}_%version.tar.bz2
+#Patch: %name-chowndir.patch
 
 # Automatically added by buildreq on Mon Feb 13 2006
 BuildRequires: perl-devel
@@ -54,6 +55,10 @@ rm -rf %buildroot%_datadir/%name
 %perl_vendor_man3dir/*
 
 %changelog
+* Sun Jun 18 2006 Vitaly Lipatov <lav@altlinux.ru> 8.64-alt0.1
+- new version 8.64 (with rpmrb script)
+- change Source URL
+
 * Fri Feb 17 2006 Vitaly Lipatov <lav@altlinux.ru> 8.63-alt1
 - new version (8.63)
 - remove my patch (the same in mainstream now)
