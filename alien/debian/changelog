@@ -1,3 +1,43 @@
+alien (8.69) unstable; urgency=low
+
+  * Alien's repository has moved from subversion to git.
+  * Minor improvement to debian/rules clean.
+  * Improve the short description.
+
+ -- Joey Hess <joeyh@debian.org>  Fri, 19 Oct 2007 20:27:53 -0400
+
+alien (8.68) unstable; urgency=low
+
+  * Show output of installation of package with -i, since some packages
+    install scripts may have important output or even be interactive.
+    Closes: #425732
+
+ -- Joey Hess <joeyh@debian.org>  Thu, 24 May 2007 14:08:39 -0400
+
+alien (8.67) unstable; urgency=low
+
+  * Update the url to the web page, and remove several other broken urls from
+    the README.
+  * Correct a bug that caused alien to ignore failing commands. Closes: #424858
+
+ -- Joey Hess <joeyh@debian.org>  Thu, 17 May 2007 13:34:36 -0400
+
+alien (8.66) unstable; urgency=low
+
+  * Use date -R as 822-date will soon be deprecated.
+
+ -- Joey Hess <joeyh@debian.org>  Thu, 22 Mar 2007 17:45:24 -0400
+
+alien (8.65) unstable; urgency=low
+
+  * Fix alien's own spec file, s/Copyright/License/.
+  * Add support for rpm scripts that use RPM_INSTALL_PREFIX, by setting
+    RPM_INSTALL_PREFIX as part of the converted script. Closes: #400863
+  * When converting LSB packages, do not increment the release number.
+  * Use rpmbuild to build lsb packages, not rpm, if lsb-rpm is not available.
+
+ -- Joey Hess <joeyh@debian.org>  Fri, 15 Dec 2006 13:46:38 -0500
+
 alien (8.64) unstable; urgency=low
 
   * Minor improvement to usage message as reported in [some random blog

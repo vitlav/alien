@@ -87,8 +87,11 @@ sub install {
 	my $this=shift;
 	my $deb=shift;
 
+	my $v=$Alien::Package::verbose;
+	$Alien::Package::verbose=2;
 	$this->do("dpkg", "--no-force-overwrite", "-i", $deb)
 		or die "Unable to install";
+	$Alien::Package::verbose=$v;
 }
 
 =item test
@@ -227,7 +230,7 @@ sub scan {
 
 =item unpack
 
-Implment the unpack method to unpack a deb file.
+Implement the unpack method to unpack a deb file.
 
 =cut
 
@@ -522,7 +525,7 @@ sub cleantree {
 Set/get package name. 
 
 Always returns the packge name in lowercase with all invalid characters
-returned. The name is however, stored unchanged.
+rmoved. The name is however, stored unchanged.
 
 =cut
 
@@ -578,7 +581,7 @@ sub version {
 	# Make sure the version contains digets.
 	unless (/[0-9]/) {
 		# Drat. Well, add some. dpkg-deb won't work
-		# # on a version w/o numbers!
+		# on a version w/o numbers!
 		return $_."0";
 	}
 	return $_;
@@ -646,10 +649,10 @@ Returns the date, in rfc822 format.
 sub date {
 	my $this=shift;
 
-	my $date=$this->runpipe(1, "822-date");
+	my $date=$this->runpipe(1, "date -R");
 	chomp $date;
 	if (!$date) {
-		die "822-date did not return a valid result. You probably need to install the dpkg-dev debian package";
+		die "date -R did not return a valid result.";
 	}
 
 	return $date;
