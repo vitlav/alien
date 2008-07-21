@@ -1,12 +1,12 @@
 Summary: Install Debian, Slackware, and Stampede packages with rpm.
 Name: alien
 Packager: Joey Hess <joey@kitenet.net>
-Version: 8.69
+Version: 8.72
 Release: 1
-Source: ftp://kitenet.net/pub/code/debian/alien_8.69.tar.gz
+Source: ftp://kitenet.net/pub/code/debian/alien_8.72.tar.gz
 License: GPL
 Group: Utilities/File
-Buildroot: /tmp/alien-8.69.build
+Buildroot: /tmp/alien-8.72.build
 Requires: perl
 BuildArchitectures: noarch
 
@@ -20,7 +20,7 @@ This is a tool only suitable for binary packages.
 
 %prep
 %setup -n alien
-rm -rf /tmp/alien-8.69.build
+rm -rf /tmp/alien-8.72.build
 
 %install
 perl Makefile.PL PREFIX=$RPM_BUILD_ROOT/usr

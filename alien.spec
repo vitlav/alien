@@ -1,5 +1,5 @@
 Name: alien
-Version: 8.69
+Version: 8.72
 Release: alt1
 
 Summary: Install Debian and Slackware Packages with RPM
@@ -55,6 +55,9 @@ rm -rf %buildroot%_datadir/%name
 %perl_vendor_man3dir/*
 
 %changelog
+* Mon Jul 21 2008 Vitaly Lipatov <lav@altlinux.ru> 8.72-alt1
+- new version 8.72 (with rpmrb script)
+
 * Tue Jan 01 2008 Vitaly Lipatov <lav@altlinux.ru> 8.69-alt1
 - new version 8.69 (with rpmrb script)
 
