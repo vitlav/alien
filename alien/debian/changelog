@@ -1,3 +1,51 @@
+alien (8.79) unstable; urgency=low
+
+  * Typo. Closes: #554379
+  * Modify -g and -s to support running on multiple packages at once.
+    Closes: #554404
+  * Removed all built-in patches for converting specific packages
+    (j2sdk, jdk, lgtoclnt, motif) with alien. These were out of date,
+    and not maintained. Alien will not include such patches going forward.
+  * Depend on the new rpm2cpio package. Closes: #559061
+
+ -- Joey Hess <joeyh@debian.org>  Tue, 01 Dec 2009 13:23:55 -0500
+
+alien (8.78) unstable; urgency=low
+
+  * Add support for rpm 4.7.0, which ignores the buildroot setting in the
+    spec file, by passing --buildroot. (Thanks, Pavel Roskin)
+
+ -- Joey Hess <joeyh@debian.org>  Wed, 08 Jul 2009 13:53:05 -0400
+
+alien (8.77) unstable; urgency=low
+
+  * Don't allow whitespace in package version when parsing debian/changelog.
+  * In rpm permission fixup code, avoid processing symlinks since that
+    would result in the file the link points to being "fixed". Closes: #535586
+
+ -- Joey Hess <joeyh@debian.org>  Mon, 06 Jul 2009 13:37:01 -0400
+
+alien (8.76) unstable; urgency=low
+
+  * Avoid using hostname -f for portability to unix systems,
+    such as Solaris, where any options _set_ the hostname.
+  * Fix bash shebang and recognise bash scripts as editable
+    shell scripts when converting to deb. Closes: #532330
+    (Thanks, Bruce Stephens)
+
+ -- Joey Hess <joeyh@debian.org>  Mon, 08 Jun 2009 13:22:35 -0400
+
+alien (8.75) unstable; urgency=low
+
+  * Simplified rules file.
+  * Modify maintainer scripts from rpm files to use /bin/bash rather
+    than /bin/sh. Many such scripts are only tested on systems where /bin/sh
+    is bash, and contain bashisms, which can cause trouble when converting
+    the rpm to be used on eg, the Debian family of distributions, where
+    /bin/sh can legitimatly be dash. Closes: #495971
+
+ -- Joey Hess <joeyh@debian.org>  Wed, 06 May 2009 17:22:02 -0400
+
 alien (8.74) unstable; urgency=low
 
   * Support bzipped and uncompressed tar files, using tar's auto-compression

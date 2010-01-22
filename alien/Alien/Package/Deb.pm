@@ -317,6 +317,7 @@ sub prep {
 		my $line=<$changelog>;
 		if ($line=~/^[^ ]+\s+\(([^)]+)\)\s/) {
 			my $version=$1;
+			$version=~s/\s+//; # ensure no whitespace
 			if ($version=~/(.*)-(.*)/) {
 				$version=$1;
 				$this->release($2);
@@ -683,7 +684,7 @@ sub email {
 		close MAILNAME;
 	}
 	if (!$mailname) {
-		$mailname=$this->runpipe(1, "hostname -f");
+		$mailname=$this->runpipe(1, "hostname");
 		chomp $mailname;
 	}
 	return "$login\@$mailname";
@@ -738,7 +739,7 @@ sub postinst {
 	return $postinst unless %$owninfo;
 	
 	my ($firstline, $rest)=split(/\n/, $postinst, 2);
-	if ($firstline !~ m/^#!\s*\/bin\/sh/) {
+	if ($firstline !~ m/^#!\s*\/bin\/(ba)?sh/) {
 		print STDERR "warning: unable to add ownership fixup code to postinst as the postinst is not a shell script!\n";
 		return $postinst;
 	}

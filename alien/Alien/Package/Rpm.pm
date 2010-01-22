@@ -239,6 +239,9 @@ sub unpack {
 	while (<GETPERMS>) {
 		chomp;
 		my ($mode, $owner, $group, $file) = split(/ /, $_, 4);
+
+		next if -l "$workdir/$file";
+
 		$mode = $mode & 07777; # remove filetype
 		my $uid = getpwnam($owner);
 		if (! defined $uid || $uid != 0) {
@@ -258,12 +261,10 @@ sub unpack {
 		if (defined($owninfo{$file}) && ($mode & 07000 > 0)) {
 			$modeinfo{$file} = sprintf "%lo", $mode;
 		}
-		next unless -e "$workdir/$file"; # skip broken links
 		if ($> == 0) {
 			$this->do("chown", "$uid:$gid", "$workdir/$file") 
 				|| die "failed chowning $file to $uid\:$gid\: $!";
 		}
-		next if -l "$workdir/$file"; # skip links
 		$this->do("chmod", sprintf("%lo", $mode), "$workdir/$file") 
 			|| die "failed changing mode of $file to $mode\: $!";
 	}
@@ -418,7 +419,9 @@ sub build {
 	}
 
 	$opts.=" $ENV{RPMBUILDOPT}" if exists $ENV{RPMBUILDOPT};
-	my $command="cd $dir; $buildcmd -bb $opts ".$this->name."-".$this->version."-".$this->release.".spec";
+	my $pwd=`pwd`;
+	chomp $pwd;
+	my $command="cd $dir; $buildcmd --buildroot=$pwd/$dir -bb $opts ".$this->name."-".$this->version."-".$this->release.".spec";
 	my $log=$this->runpipe(1, "$command 2>&1");
 	if ($?) {
 		die "Package build failed. Here's the log of the command ($command):\n", $log;
@@ -463,10 +466,15 @@ debian/slackware scripts can be anything -- perl programs or binary files
 -- and rpm is limited to only shell scripts, we need to encode the files
 and add a scrap of shell script to make it unextract and run on the fly.
 
-When setting a value, we do some mangling too. Rpm maitainer scripts
-are typically shell scripts, but often lack the leading #!/bin/sh
-This can confuse dpkg, so add the #!/bin/sh if it looks like there
+When setting a value, we do some mangling too. Rpm maintainer scripts
+are typically shell scripts, but often lack the leading shebang line.
+This can confuse dpkg, so add the shebang if it looks like there
 is no shebang magic already in place.
+
+Additionally, it's not uncommon for rpm maintainer scripts to contain
+bashisms, which can be triggered when they are ran on systems where /bin/sh
+is not bash. To work around this, the shebang line of the scripts is
+changed to use bash.
 
 Also, if the rpm is relocatable, the script could refer to
 RPM_INSTALL_PREFIX, which is set by rpm at run time. Deal with this by
@@ -489,9 +497,10 @@ sub _script_helper {
 
 		my $value=shift;
 		if (length $value and $value !~ m/^#!\s*\//) {
-			$value="#!/bin/sh\n$prefixcode$value";
+			$value="#!/bin/bash\n$prefixcode$value";
 		}
 		else {
+			$value=~s@^#!\s*/bin/sh(\s)@#!/bin/bash$1@;
 			$value=~s/\n/\n$prefixcode/s;
 		}
 		$this->{$script} = $value;
