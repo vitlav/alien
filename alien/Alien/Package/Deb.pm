@@ -383,18 +383,17 @@ sub prep {
 		close OUT;
 	}
 
+	# Use debhelper v7
+	open (OUT, ">$dir/debian/compat") || die "$dir/debian/compat: $!";
+	print OUT "7\n";
+	close OUT;
+
 	# A minimal rules file.
 	open (OUT, ">$dir/debian/rules") || die "$dir/debian/rules: $!";
 	my $fixpermscomment = $this->fixperms ? "" : "#";
 	print OUT << "EOF";
 #!/usr/bin/make -f
 # debian/rules for alien
-
-# Uncomment this to turn on verbose mode.
-#export DH_VERBOSE=1
-
-# Use v4 compatability mode, so ldconfig gets added to maint scripts.
-export DH_COMPAT=4
 
 PACKAGE=\$(shell dh_listpackages)
 
@@ -411,7 +410,7 @@ binary-indep: build
 binary-arch: build
 	dh_testdir
 	dh_testroot
-	dh_clean -k -d
+	dh_prep
 	dh_installdirs
 
 	dh_installdocs
@@ -488,13 +487,27 @@ Build a deb.
 
 sub build {
 	my $this=shift;
+	
+	# Detect architecture mismatch and abort with a comprehensible
+	# error message.
+	my $arch=$this->arch;
+	if ($arch ne 'all') {
+		my $ret=system("dpkg-architecture", "-i".$arch);
+		if ($ret != 0) {
+			die $this->filename." is for architecture ".$this->arch." ; the package cannot be built on this system"."\n";
+		}
+	}
 
 	chdir $this->unpacked_tree;
 	my $log=$this->runpipe(1, "debian/rules binary 2>&1");
-	if ($?) {
+	chdir "..";
+	my $err=$?;
+	if ($err) {
+		if (! defined $log) {
+			die "Package build failed; could not run generated debian/rules file.\n";
+		}
 		die "Package build failed. Here's the log:\n", $log;
 	}
-	chdir "..";
 
 	return $this->name."_".$this->version."-".$this->release."_".$this->arch.".deb";
 }

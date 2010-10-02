@@ -67,6 +67,9 @@ standard linux directory tree. Do NOT run B<alien> on tar files with source
 code in them, unless you want this source code to be installed in your root
 directory when you install the package!
 
+When using B<alien> to convert a tgz package, all files in /etc in are assumed
+to be configuration files.
+
 =item pkg
 
 To manipulate packages in the Solaris pkg format (which is really the SV 
@@ -127,6 +130,16 @@ Like B<-g>, but do not generate the packagename.orig directory. This is only
 useful when you are very low on disk space and are generating a debian
 package.
 
+=item B<-c>, B<--scripts>
+
+Try to convert the scripts that are meant to be run when the
+package is installed and removed. Use this with caution, because these
+scripts might be designed to work on a system unlike your own, and could
+cause problems. It is recommended that you examine the scripts by hand
+and check to see what they do before using this option.
+
+This is enabled by default when converting from lsb packages.
+
 =item B<--patch=>I<patch>
 
 Specify the patch to be used instead of automatically looking the patch up
@@ -155,16 +168,6 @@ converting from the tgz package format, which may lack version
 information.
 
 Note that without an argument, this displays the version of B<alien> instead.
-
-=item B<-c>, B<--scripts>
-
-Try to convert the scripts that are meant to be run when the
-package is installed and removed. Use this with caution, because these
-scripts might be designed to work on a system unlike your own, and could
-cause problems. It is recommended that you examine the scripts by hand
-and check to see what they do before using this option.
-
-This is enabled by default when converting from lsb packages.
 
 =item B<-T>, B<--test>
 
@@ -257,14 +260,6 @@ If set, B<alien> assumes this is your email address. Email addresses are
 included in generated debian packages.
 
 =back
-
-=head1 NOTES
-
-When using B<alien> to convert a tgz package, all files in /etc in are assumed
-to be configuration files.
-
-If B<alien> is not run as root, the files in the generated package will have
-incorrect owners and permissions.
 
 =head1 AUTHOR
 

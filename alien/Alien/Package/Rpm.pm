@@ -76,13 +76,15 @@ sub scan {
 		POSTIN => 'postinst',
 		PREUN => 'prerm',
 		POSTUN => 'postrm',
+		LICENSE => 'copyright',
 	);
 
 	# Use --queryformat to pull out all the fields we need.
 	foreach my $field (qw{NAME VERSION RELEASE ARCH CHANGELOGTEXT
-		              SUMMARY DESCRIPTION COPYRIGHT PREFIXES},
+		              SUMMARY DESCRIPTION PREFIXES},
 	                   keys(%fieldtrans)) {
 		my $value=$this->runpipe(0, "LANG=C rpm -qp --queryformat \%{$field} $file");
+		next if $? || $value eq '(none)';
 		my $key;
 		if (exists $fieldtrans{$field}) {
 			$key=$fieldtrans{$field};
@@ -90,7 +92,6 @@ sub scan {
 		else {
 			$key=lc($field);
 		}
-		$value='' if $value eq '(none)';
 		$this->$key($value);
 	}
 
@@ -122,11 +123,17 @@ sub scan {
 			$this->summary('Converted RPM package');
 		}
 	}
-	unless (defined $this->copyright) {
-		$this->copyright('unknown');
-	}
 	unless (defined $this->description) {
 		$this->description($this->summary);
+	}
+	unless (defined $this->copyright) {
+		# Older rpms have no licence tag, but have a copyright.
+		$this->copyright($this->runpipe(0, "LANG=C rpm -qp --queryformat \%{COPYRIGHT} $file"));
+
+		# Fallback.
+		if (! $this->copyright) {
+			$this->copyright('unknown');
+		}
 	}
 	if (! defined $this->release || ! defined $this->version || 
 	    ! defined $this->name) {
@@ -152,7 +159,13 @@ sub unpack {
 	$this->SUPER::unpack(@_);
 	my $workdir=$this->unpacked_tree;
 	
-	$this->do("rpm2cpio ".$this->filename." | (cd $workdir; cpio --extract --make-directories --no-absolute-filenames --preserve-modification-time) 2>&1")
+	# Check if we need to use lzma to uncompress the cpio archive
+	my $decomp='';
+	if ($this->do("rpm2cpio ".$this->filename." | lzma -t -q > /dev/null 2>&1")) {
+		$decomp = 'lzma -d -q |';
+	}
+
+	$this->do("rpm2cpio ".$this->filename." | (cd $workdir; $decomp cpio --extract --make-directories --no-absolute-filenames --preserve-modification-time) 2>&1")
 		or die "Unpacking of '".$this->filename."' failed";
 	
 	# cpio does not necessarily store all parent directories in an
@@ -161,7 +174,7 @@ sub unpack {
 	# Find those directories and make them mode 755, which is more
 	# reasonable.
 	my %seenfiles;
-	open (RPMLIST, "rpm2cpio ".$this->filename." | cpio -it --quiet |")
+	open (RPMLIST, "rpm2cpio ".$this->filename." | $decomp cpio -it --quiet |")
 		or die "File list of '".$this->filename."' failed";
 	while (<RPMLIST>) {
 		chomp;
@@ -258,15 +271,20 @@ sub unpack {
 			}
 			$gid=0;
 		}
-		if (defined($owninfo{$file}) && ($mode & 07000 > 0)) {
+		if (defined($owninfo{$file}) && (($mode & 07000) > 0)) {
 			$modeinfo{$file} = sprintf "%lo", $mode;
 		}
-		if ($> == 0) {
-			$this->do("chown", "$uid:$gid", "$workdir/$file") 
-				|| die "failed chowning $file to $uid\:$gid\: $!";
+		# Note that ghost files exist in the metadata but not
+                # in the cpio archive, so check that the file exists
+		# before trying to access it
+		if (-e "$workdir/$file") {
+			if ($> == 0) {
+				$this->do("chown", "$uid:$gid", "$workdir/$file") 
+					|| die "failed chowning $file to $uid\:$gid\: $!";
+			}
+			$this->do("chmod", sprintf("%lo", $mode), "$workdir/$file") 
+				|| die "failed changing mode of $file to $mode\: $!";
 		}
-		$this->do("chmod", sprintf("%lo", $mode), "$workdir/$file") 
-			|| die "failed changing mode of $file to $mode\: $!";
 	}
 	$this->owninfo(\%owninfo);
 	$this->modeinfo(\%modeinfo);
