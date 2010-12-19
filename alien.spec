@@ -14,10 +14,10 @@ BuildArch: noarch
 
 #Source: http://kitenet.net/programs/alien/%{name}_%version.tar.bz2
 Source: http://ftp.debian.org/debian/pool/main/a/alien/%{name}_%version.tar.bz2
-#Patch: %name-chowndir.patch
+Patch: %name-Makefile.PL.patch
 
 # Automatically added by buildreq on Mon Feb 13 2006
-BuildRequires: perl-devel
+BuildRequires: perl-devel perl-podlators
 
 %description
 Alien allows you to convert Debian, Slackware and Stampede Packages
@@ -28,31 +28,30 @@ This is a tool only suitable for binary packages.
 
 %prep
 %setup -q -n %name
-#%patch -p0
+%patch -p2
 
 %build
 perl Makefile.PL \
 	INSTALLDIRS=vendor
 echo Hello
-#make
-%make_build
+%perl_vendor_build INSTALLMAN1DIR=%_man1dir INSTALLMAN3DIR=%_man3dir
 
 %install
 
 %make_install pure_install \
 	DESTDIR=%buildroot \
-	PREFIX=%buildroot%prefix \
+	PREFIX=%prefix \
 	VARPREFIX=%buildroot \
-	INSTALLMAN1DIR=%buildroot%perl_vendor_man1dir \
-	INSTALLMAN3DIR=%buildroot%perl_vendor_man3dir
+	INSTALLMAN1DIR=%_man1dir \
+	INSTALLMAN3DIR=%_man3dir
 #find %buildroot -type f -name .\* -print0 |xargs -r0 rm -fv
 rm -rf %buildroot%_datadir/%name
 
 %files
 %_bindir/*
 %perl_vendor_privlib/Alien/
-%perl_vendor_man1dir/*
-%perl_vendor_man3dir/*
+%_man1dir/*
+%_man3dir/*
 
 %changelog
 * Sat Oct 02 2010 Vitaly Lipatov <lav@altlinux.ru> 8.83-alt1

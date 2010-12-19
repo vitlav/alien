@@ -1,0 +1,13 @@
+diff --git a/alien/Makefile.PL b/alien/Makefile.PL
+index 1573b93..546fc88 100755
+--- a/alien/Makefile.PL
++++ b/alien/Makefile.PL
+@@ -27,7 +27,7 @@ extra_build:
+ 	perl -i -pe "s/\@version\@/$(VER)/g" <alien.spec.in >alien.spec
+ 
+ extra_install:
+-	install -d $(PREFIX)/share/alien/patches \
++	install -d $(DESTDIR)$(PREFIX)/share/alien/patches \
+ 		   $(VARPREFIX)/var/lib/alien
+ 
+ alien:
