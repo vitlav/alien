@@ -1,6 +1,6 @@
 Name: alien
 Version: 8.83
-Release: alt1
+Release: alt2
 
 Summary: Install Debian and Slackware Packages with RPM
 
@@ -27,13 +27,11 @@ Debian and Stampede packages.
 This is a tool only suitable for binary packages.
 
 %prep
-%setup -q -n %name
+%setup -n %name
 %patch -p2
 
 %build
-perl Makefile.PL \
-	INSTALLDIRS=vendor
-echo Hello
+perl Makefile.PL INSTALLDIRS=vendor
 %perl_vendor_build INSTALLMAN1DIR=%_man1dir INSTALLMAN3DIR=%_man3dir
 
 %install
@@ -44,16 +42,18 @@ echo Hello
 	VARPREFIX=%buildroot \
 	INSTALLMAN1DIR=%_man1dir \
 	INSTALLMAN3DIR=%_man3dir
-#find %buildroot -type f -name .\* -print0 |xargs -r0 rm -fv
-rm -rf %buildroot%_datadir/%name
+rm -rf %buildroot%_datadir/%name/
 
 %files
-%_bindir/*
+%_bindir/%name
 %perl_vendor_privlib/Alien/
 %_man1dir/*
 %_man3dir/*
 
 %changelog
+* Sun Dec 19 2010 Vitaly Lipatov <lav@altlinux.ru> 8.83-alt2
+- cleanup spec, fix build (thanks, real@)
+
 * Sat Oct 02 2010 Vitaly Lipatov <lav@altlinux.ru> 8.83-alt1
 - new version 8.83 (with rpmrb script)
 
