@@ -1,6 +1,6 @@
 Name: alien
-Version: 8.83
-Release: alt2
+Version: 8.86
+Release: alt1
 
 Summary: Install Debian and Slackware Packages with RPM
 
@@ -51,6 +51,9 @@ rm -rf %buildroot%_datadir/%name/
 %_man3dir/*
 
 %changelog
+* Wed Mar 28 2012 Dmitriy Kruglikov <dkr@altlinux.ru> 8.86-alt1
+- Updated to 8.86
+
 * Sun Dec 19 2010 Vitaly Lipatov <lav@altlinux.ru> 8.83-alt2
 - cleanup spec, fix build (thanks, real@)
 

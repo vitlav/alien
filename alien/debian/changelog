@@ -1,3 +1,24 @@
+alien (8.86) unstable; urgency=low
+
+  * Filter out illegal characters in version number when building a deb.
+    Closes: #648531
+
+ -- Joey Hess <joeyh@debian.org>  Sat, 12 Nov 2011 13:12:35 -0400
+
+alien (8.85) unstable; urgency=low
+
+  * Avoid breaking on spaces in filenames. Closes: #618636
+
+ -- Joey Hess <joeyh@debian.org>  Sun, 19 Jun 2011 15:43:49 -0400
+
+alien (8.84) unstable; urgency=low
+
+  * Silence error message when deleting build tree after making an rpm,
+    if rpmbuild has already deleted it. Closes: #622846
+  * Squash an uninitialized value when creating a deb.
+
+ -- Joey Hess <joeyh@debian.org>  Fri, 15 Apr 2011 14:13:20 -0400
+
 alien (8.83) unstable; urgency=low
 
   * Correct handling of arch all packages in deb arch check. Closes: #596209

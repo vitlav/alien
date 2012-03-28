@@ -110,7 +110,7 @@ sub test {
 		return map { s/\n//; $_ }
 		       grep {
 		       		! /unknown-section alien/
-		       } $this->runpipe(1, "lintian $deb");
+		       } $this->runpipe(1, "lintian '$deb'");
 	}
 	else {
 		return "lintian not available, so not testing";
@@ -130,7 +130,7 @@ sub getcontrolfile {
 	my $file=$this->filename;
 	
 	if ($this->have_dpkg_deb) {
-		return $this->runpipe(1, "dpkg-deb --info $file $controlfile 2>/dev/null");
+		return $this->runpipe(1, "dpkg-deb --info '$file' $controlfile 2>/dev/null");
 	}
 	else {
 		# Solaris tar doesn't support O
@@ -139,10 +139,10 @@ sub getcontrolfile {
 
 			return "(mkdir /tmp/tar_out.$$ &&".
 				" cd /tmp/tar_out.$$ &&".
-				" tar xf - ./$file &&".
-				" cat $file; cd /; rm -rf /tmp/tar_out.$$)";
+				" tar xf - './$file' &&".
+				" cat '$file'; cd /; rm -rf /tmp/tar_out.$$)";
 		}
-		my $getcontrol = "ar -p $file control.tar.gz | gzip -dc | ".tar_out($controlfile)." 2>/dev/null";
+		my $getcontrol = "ar -p '$file' control.tar.gz | gzip -dc | ".tar_out($controlfile)." 2>/dev/null";
 		return $this->runpipe(1, $getcontrol);
 	}
 }
@@ -212,11 +212,11 @@ sub scan {
 	my @filelist;
 	if ($this->have_dpkg_deb) {
 		@filelist=map { chomp; s:\./::; "/$_" }
-			  $this->runpipe(0, "dpkg-deb --fsys-tarfile $file | tar tf -");
+			  $this->runpipe(0, "dpkg-deb --fsys-tarfile '$file' | tar tf -");
 	}
 	else {
 		@filelist=map { chomp; s:\./::; "/$_" }
-			  $this->runpipe(0, "ar -p $file data.tar.gz | gzip -dc | tar tf -");
+			  $this->runpipe(0, "ar -p '$file' data.tar.gz | gzip -dc | tar tf -");
 	}
 	$this->filelist(\@filelist);
 
@@ -307,7 +307,7 @@ sub prep {
 			or die "patch error: $!";
 		# Look for .rej files.
 		die "patch failed with .rej files; giving up"
-			if $this->runpipe(1, "find $dir -name \"*.rej\"");
+			if $this->runpipe(1, "find '$dir' -name \"*.rej\"");
 		$this->do('find', '.', '-name', '*.orig', '-exec', 'rm', '{}', ';');
 		$this->do("chmod", 755, "$dir/debian/rules");
 
@@ -596,6 +596,8 @@ sub version {
 	# get
 	return unless defined wantarray; # optimization
 	$_=$this->{version};
+	# filter out some characters not allowed in debian versions
+	s/[^-.+~:A-Za-z0-9]//g; # see lib/dpkg/parsehelp.c parseversion
 	# Make sure the version contains digets.
 	unless (/[0-9]/) {
 		# Drat. Well, add some. dpkg-deb won't work
@@ -747,7 +749,7 @@ sub postinst {
 	return $postinst unless ref $owninfo;
 
 	# If there is no postinst, let's make one up..
-	$postinst="#!/bin/sh\n" unless length $postinst;
+	$postinst="#!/bin/sh\n" unless defined $postinst && length $postinst;
 	
 	return $postinst unless %$owninfo;
 	
