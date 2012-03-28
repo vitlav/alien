@@ -1,6 +1,6 @@
 Name: alien
 Version: 8.86
-Release: alt1
+Release: alt2
 
 Summary: Install Debian and Slackware Packages with RPM
 
@@ -51,6 +51,9 @@ rm -rf %buildroot%_datadir/%name/
 %_man3dir/*
 
 %changelog
+* Wed Mar 28 2012 Dmitriy Kruglikov <dkr@altlinux.ru> 8.86-alt2
+- Added Option for adding the dependency list from file
+
 * Wed Mar 28 2012 Dmitriy Kruglikov <dkr@altlinux.ru> 8.86-alt1
 - Updated to 8.86
 

@@ -211,6 +211,11 @@ Display a short usage summary.
 
 Display the version of B<alien>.
 
+=item B<--depends=>I<file>
+
+Use list of dependencies from file, instead of existing list in origin package. 
+This works now only when converting package to deb
+
 =back
 
 =head1 EXAMPLES
@@ -319,6 +324,7 @@ Usage: alien [options] file [...]
                             directory.
        --fixperms           Munge/fix permissions and owners.
        --test               Test generated packages with lintian.
+       --depends=<file>     Use custom file with dependency list.
   -r, --to-rpm              Generate a Red Hat rpm package.
       --to-slp              Generate a Stampede slp package.
   -l, --to-lsb              Generate a LSB package.
@@ -344,7 +350,7 @@ EOF
 # Start by processing the parameters.
 my (%destformats, $generate, $install, $single, $scripts, $patchfile,
     $nopatch, $tgzdescription, $tgzversion, $keepversion, $fixperms,
-    $test, $anypatch);
+    $test, $anypatch, $depends);
 my $versionbump=1;
 
 # Bundling is nice anyway, and it is required or Getopt::Long will confuse
@@ -368,13 +374,14 @@ GetOptions(
 	"anypatch"       => \$anypatch,
 	"description=s"  => \$tgzdescription,
 	"V"              => \&version,
-        "version:s"      => sub { length $_[1] ? $tgzversion=$_[1] : version() },
+	"version:s"      => sub { length $_[1] ? $tgzversion=$_[1] : version() },
 	"verbose|v"      => \$Alien::Package::verbose,
 	"veryverbose"    => sub { $Alien::Package::verbose=2 },
 	"keep-version|k" => \$keepversion,
 	"bump=s"         => \$versionbump,
 	"fixperms"       => \$fixperms,
 	"help|h"         => \&usage,
+	"depends=s"      => \$depends,
 ) || usage();
 
 # Default to deb conversion.
@@ -391,6 +398,9 @@ if (($generate || $single) && keys %destformats > 1) {
 }
 if ($patchfile && ! -f $patchfile) {
 	die "Specified patch file, \"$patchfile\" cannot be found.\n";
+}
+if ($depends && ! -f $depends) {
+        die "Specified dependency file \"$depends\" cannot be found.\n";
 }
 if ($patchfile && $nopatch) {
 	die "The options --nopatch and --patchfile cannot be used together.\n";
@@ -493,6 +503,19 @@ foreach my $file (@ARGV) {
 			}
 
 			$package->fixperms($fixperms);
+                       # Set custom dependencies if are
+                       if($format eq 'deb' && $depends) {
+                               open DF, "<$depends"; #file with dependency list
+                               my @dependencies;
+                               while (my $i = <DF>) {
+                                       chomp($i);
+                                       $i =~ s/#.*//; #comments
+                                       $i =~ s/^\s*//; #initial spaces 
+                                       push @dependencies, $i if($i);
+                               }
+                               close DF;
+                               $package->depends(join(', ', @dependencies));
+                       }
 			
 			$package->prep;
 			
