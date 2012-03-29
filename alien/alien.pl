@@ -311,7 +311,7 @@ sub patchdirs {
 
 # Display usage help.
 sub usage {
-	print STDERR <<EOF;
+	print <<EOF;
 Usage: alien [options] file [...]
   file [...]                Package file or files to convert.
   -d, --to-deb              Generate a Debian deb package (default).
