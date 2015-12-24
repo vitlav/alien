@@ -211,11 +211,6 @@ Display a short usage summary.
 
 Display the version of B<alien>.
 
-=item B<--depends=>I<file>
-
-Use list of dependencies from file, instead of existing list in origin package. 
-This works now only when converting package to deb
-
 =back
 
 =head1 EXAMPLES
@@ -297,6 +292,7 @@ use Alien::Package::Tgz;
 use Alien::Package::Slp;
 use Alien::Package::Pkg;
 use Alien::Package::Lsb;
+use Alien::Package::Dir;
 
 # Display alien's version number.
 sub version {
@@ -311,7 +307,7 @@ sub patchdirs {
 
 # Display usage help.
 sub usage {
-	print <<EOF;
+	print STDERR <<EOF;
 Usage: alien [options] file [...]
   file [...]                Package file or files to convert.
   -d, --to-deb              Generate a Debian deb package (default).
@@ -324,7 +320,6 @@ Usage: alien [options] file [...]
                             directory.
        --fixperms           Munge/fix permissions and owners.
        --test               Test generated packages with lintian.
-       --depends=<file>     Use custom file with dependency list.
   -r, --to-rpm              Generate a Red Hat rpm package.
       --to-slp              Generate a Stampede slp package.
   -l, --to-lsb              Generate a LSB package.
@@ -350,7 +345,7 @@ EOF
 # Start by processing the parameters.
 my (%destformats, $generate, $install, $single, $scripts, $patchfile,
     $nopatch, $tgzdescription, $tgzversion, $keepversion, $fixperms,
-    $test, $anypatch, $depends);
+    $test, $anypatch);
 my $versionbump=1;
 
 # Bundling is nice anyway, and it is required or Getopt::Long will confuse
@@ -374,14 +369,13 @@ GetOptions(
 	"anypatch"       => \$anypatch,
 	"description=s"  => \$tgzdescription,
 	"V"              => \&version,
-	"version:s"      => sub { length $_[1] ? $tgzversion=$_[1] : version() },
+        "version:s"      => sub { length $_[1] ? $tgzversion=$_[1] : version() },
 	"verbose|v"      => \$Alien::Package::verbose,
 	"veryverbose"    => sub { $Alien::Package::verbose=2 },
 	"keep-version|k" => \$keepversion,
 	"bump=s"         => \$versionbump,
 	"fixperms"       => \$fixperms,
 	"help|h"         => \&usage,
-	"depends=s"      => \$depends,
 ) || usage();
 
 # Default to deb conversion.
@@ -398,9 +392,6 @@ if (($generate || $single) && keys %destformats > 1) {
 }
 if ($patchfile && ! -f $patchfile) {
 	die "Specified patch file, \"$patchfile\" cannot be found.\n";
-}
-if ($depends && ! -f $depends) {
-        die "Specified dependency file \"$depends\" cannot be found.\n";
 }
 if ($patchfile && $nopatch) {
 	die "The options --nopatch and --patchfile cannot be used together.\n";
@@ -432,7 +423,12 @@ foreach my $file (@ARGV) {
 
 	# Check lsb before rpm, since lsb packages are really just
 	# glorified rpms.
-	if (Alien::Package::Lsb->checkfile($file)) {
+	if (Alien::Package::Dir->checkfile($file)) {
+		$package=Alien::Package::Dir->new(filename => $file);
+		$package->description($tgzdescription) if defined $tgzdescription;
+		$package->version($tgzversion) if defined $tgzversion;
+	}
+	elsif (Alien::Package::Lsb->checkfile($file)) {
 		$package=Alien::Package::Lsb->new(filename => $file);
 	}
 	elsif (Alien::Package::Rpm->checkfile($file)) {
@@ -503,19 +499,6 @@ foreach my $file (@ARGV) {
 			}
 
 			$package->fixperms($fixperms);
-                       # Set custom dependencies if are
-                       if($format eq 'deb' && $depends) {
-                               open DF, "<$depends"; #file with dependency list
-                               my @dependencies;
-                               while (my $i = <DF>) {
-                                       chomp($i);
-                                       $i =~ s/#.*//; #comments
-                                       $i =~ s/^\s*//; #initial spaces 
-                                       push @dependencies, $i if($i);
-                               }
-                               close DF;
-                               $package->depends(join(', ', @dependencies));
-                       }
 			
 			$package->prep;
 			

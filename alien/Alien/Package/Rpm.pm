@@ -344,6 +344,7 @@ sub prep {
 	print OUT "\%define _rpmdir ../\n"; # write rpm to current directory
 	print OUT "\%define _rpmfilename %%{NAME}-%%{VERSION}-%%{RELEASE}.%%{ARCH}.rpm\n";
 	print OUT "\%define _unpackaged_files_terminate_build 0\n"; # work on SuSE
+	print OUT "\%define _binaries_in_noarch_packages_terminate_build 0\n";
 	print OUT "\n";
 	if ($this->usescripts) {
 		if ($this->preinst) {
@@ -424,7 +425,7 @@ sub build {
 		$opts="--buildarch ".$this->arch;
 	}
 	else {
-		# Presumably we're dealing with rpm 3.0 or above, which
+		# Presumably we're delaing with rpm 3.0 or above, which
 		# doesn't output rpmdir in any format I'd care to try to
 		# parse. Instead, rpm is now of a late enough version to
 		# notice the %define's in the spec file, that will make the
