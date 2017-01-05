@@ -1,2 +1,2 @@
 copy: *.patch
-tar.bz2: alien name=alien_@version@ base=alien
+tar: @name@
