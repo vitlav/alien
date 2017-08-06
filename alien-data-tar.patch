@@ -7,7 +7,7 @@ index bf09058..0141264 100644
  	else {
  		@filelist=map { chomp; s:\./::; "/$_" }
 -			  $this->runpipe(0, "ar -p '$file' data.tar.gz | gzip -dc | tar tf -");
-+			  $this->runpipe(0, "( ar -p '$file' data.tar.gz | gzip -dc || ar -p '$file' data.tar.xz | xzcat ) | tar tf -");
++			  $this->runpipe(0, "ar -p '$file' data.tar.gz | gzip -dc | tar tf - || ar -p '$file' data.tar.xz | xzcat  | tar tf -");
  	}
  	$this->filelist(\@filelist);
  
@@ -16,7 +16,7 @@ index bf09058..0141264 100644
  	}
  	else {
 -		$this->do("ar -p $file data.tar.gz | gzip -dc | (cd ".$this->unpacked_tree."; tar xpf -)")
-+		$this->do("( ar -p $file data.tar.gz | gzip -dc || ar -p '$file' data.tar.xz | xzcat ) | (cd ".$this->unpacked_tree."; tar xpf -)")
++		$this->do("ar -p $file data.tar.gz | gzip -dc | (cd ".$this->unpacked_tree."; tar xpf -) || ar -p '$file' data.tar.xz | xzcat | (cd ".$this->unpacked_tree."; tar xpf -)")
  			or die "Unpacking of '$file' failed: $!";
  	}
  
