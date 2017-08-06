@@ -15,6 +15,7 @@ BuildArch: noarch
 # Source-url: http://ftp.debian.org/debian/pool/main/a/alien/%{name}_%version.tar.bz2
 Source: %name-%version.tar
 Patch: %name-Makefile.PL.patch
+Patch1: %name-data-tar.patch
 
 # Automatically added by buildreq on Mon Feb 13 2006
 BuildRequires: perl-devel perl-podlators
@@ -29,6 +30,7 @@ This is a tool only suitable for binary packages.
 %prep
 %setup
 %patch -p2
+%patch1 -p2
 
 %build
 %perl_vendor_build INSTALLMAN1DIR=%_man1dir INSTALLMAN3DIR=%_man3dir
